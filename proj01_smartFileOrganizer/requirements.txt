@@ -1,0 +1,4 @@
+# requirements.txt
+# No standard library modules here
+requests>=2.28.0
+# etc.
