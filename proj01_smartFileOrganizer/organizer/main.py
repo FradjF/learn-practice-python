@@ -4,6 +4,10 @@ from organizer import organize_folder
 
 
 def validate_path(parsed_path: Path) -> Path | None:
+    """
+        Validates the parsed path: Makes sure the path/folder exists.
+
+    """
     if Path(parsed_path).exists() and Path(parsed_path).is_dir():
         full_path = Path(parsed_path).expanduser()
         print(f"Folder exists.\nFull path is: {full_path}")
@@ -13,7 +17,8 @@ def validate_path(parsed_path: Path) -> Path | None:
 
 def parse_argument() -> argparse.Namespace:
     """
-        This function parses an entered argument.
+        This function defines arguments for the CLI and
+        parses the entered argument(s).
     """
     parser = argparse.ArgumentParser(description="This is a parser to process entered path.")
     parser.add_argument("folder_path", type=str, help="Folder to be organized")
@@ -23,13 +28,15 @@ def parse_argument() -> argparse.Namespace:
     return args
 
 def main() -> None:
+
     args = parse_argument()
     source = validate_path(args.folder_path)
     if source is None:
         raise FileNotFoundError("File has not been found.")
-
     dry_run = args.dry_run
     organize_folder(source,dry_run)
+
+
 
 if __name__ == "__main__":
     main()
