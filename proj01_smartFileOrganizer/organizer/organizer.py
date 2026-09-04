@@ -1,12 +1,13 @@
+import logging
 from pathlib import Path
 import shutil
+from config import get_configuration
 
-categories = {"Images":[".png", ".jpg", ".jpeg", ".bmp", ".gif"],
-              "Docs": [".pdf", ".docx", ".xlsx", ".pptx", ".md"],
-              "Videos":[".mp4"],
-              "Zips":[".zip"]}
+logger = logging.getLogger(__name__)
 
-def categorize_file(file_path:Path) -> str:
+#categories = get_configuration()
+
+def categorize_file(file_path:Path, categories:dict) -> str:
     """
         Returns the destination category of file based on its extension.
     """
@@ -36,14 +37,17 @@ def move(item:Path, category:str, folder:Path) -> str:
     destination = folder / category
     file_path = destination / item.name
     if file_path.exists():
+        logger.warning("'%s' Skipped.", item.name)
         return "Skipped."
 
     try:
         build_destination_path(destination)
         shutil.move(item,destination)
+        logger.info("'%s' Moved successfully to %s.", item.name, destination)
         return "Moved."
-    except OSError as e:
-        return f"Failed: {e}."
+    except OSError:
+        logger.exception("Failed to move %s to %s",item.name, destination)
+        return "Failed."
 
 def move_result(item:Path, category:str, result, dry_run:bool) -> str:
     """
@@ -51,21 +55,22 @@ def move_result(item:Path, category:str, result, dry_run:bool) -> str:
     """
     return f"[DRY_RUN] {item.name} -> {category}" if dry_run else f"{item.name} -> {category}: {result}"
 
-def organize_folder(folder:Path, dry_run:bool) -> None:
+def organize_folder(folder:Path, categories:dict, dry_run:bool) -> None:
     """
         Organize files in a folder based on their extension.
 
         In dry-run mode, report the actions without modifying the filesystem.
     """
-    print("Scanning folder ...\n")
+    logger.info("Scanning folder.")
     if dry_run:
         print("#### DRY_RUN mode activated ####")
+        logger.info("DRY_RUN mode activated.")
     else:
-        print("Moving files ...")
+        logger.info("Starting to move files...")
 
     for item in folder.iterdir():
         if not item.is_dir():
-            category = categorize_file(item)
+            category = categorize_file(item, categories)
             result = ""
             if not dry_run:
                 result = move(item, category, folder)

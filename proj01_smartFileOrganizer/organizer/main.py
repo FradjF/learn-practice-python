@@ -1,15 +1,16 @@
 import argparse
 from pathlib import Path
 from organizer import organize_folder
-
+from logger import configure_logging
+from config import get_configuration
 
 def validate_path(parsed_path: Path) -> Path | None:
     """
         Validates the parsed path: Makes sure the path/folder exists.
 
     """
-    if Path(parsed_path).exists() and Path(parsed_path).is_dir():
-        full_path = Path(parsed_path).expanduser()
+    full_path = Path(parsed_path).expanduser()
+    if full_path.exists() and full_path.is_dir():
         print(f"Folder exists.\nFull path is: {full_path}")
     else:
         full_path = None
@@ -28,14 +29,14 @@ def parse_argument() -> argparse.Namespace:
     return args
 
 def main() -> None:
-
+    configure_logging()
     args = parse_argument()
     source = validate_path(args.folder_path)
     if source is None:
         raise FileNotFoundError("File has not been found.")
     dry_run = args.dry_run
-    organize_folder(source,dry_run)
-
+    categories = get_configuration()
+    organize_folder(source, categories, dry_run)
 
 
 if __name__ == "__main__":
