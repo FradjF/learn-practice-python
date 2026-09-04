@@ -3,6 +3,9 @@ from pathlib import Path
 from organizer import organize_folder
 from logger import configure_logging
 from config import get_configuration
+import logging
+
+logger = logging.getLogger(__name__)
 
 def validate_path(parsed_path: Path) -> Path | None:
     """
@@ -28,6 +31,25 @@ def parse_argument() -> argparse.Namespace:
 
     return args
 
+
+def validate_configuration(config:dict[str, list[str]]) -> bool:
+    """
+        This function validates whether the config file has the right structure
+        Returns true/false
+    """
+    if type(config) != dict:
+        return False
+
+    for (key, value) in config.items():
+        if not isinstance(value,list):
+            return False
+        else:
+            for ext in value:
+                if not isinstance(ext,str):
+                    return False
+    return True
+
+
 def main() -> None:
     configure_logging()
     args = parse_argument()
@@ -36,8 +58,12 @@ def main() -> None:
         raise FileNotFoundError("File has not been found.")
     dry_run = args.dry_run
     categories = get_configuration()
-    organize_folder(source, categories, dry_run)
-
+    if not validate_configuration(categories):
+        logger.error("Configuration file has the wrong format.")
+        raise ValueError("Invalid configuration.")
+    else:
+        logger.info("Configuration file is valid.")
+        organize_folder(source, categories, dry_run)
 
 if __name__ == "__main__":
     main()
