@@ -22,3 +22,20 @@ def get_configuration() -> dict:
     except FileNotFoundError:
         logger.warning("'config.json' not found. Using default configuration.")
         return DEFAULT_CATEGORIES
+
+def validate_configuration(config:dict[str, list[str]]) -> bool:
+    """
+        This function validates whether the config file has the right structure
+        Returns true/false
+    """
+    if not isinstance(config, dict) or not config:
+        return False
+
+    for (key, value) in config.items():
+        if not isinstance(value,list):
+            return False
+        else:
+            for ext in value:
+                if not isinstance(ext,str):
+                    return False
+    return True
