@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from organizer import organize_folder
+from organizer.core import organize_folder
 from logger import configure_logging
 from config import get_configuration
 import logging

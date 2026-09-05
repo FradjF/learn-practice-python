@@ -1,11 +1,8 @@
 import logging
 from pathlib import Path
 import shutil
-from config import get_configuration
 
 logger = logging.getLogger(__name__)
-
-#categories = get_configuration()
 
 def categorize_file(file_path:Path, categories:dict) -> str:
     """
