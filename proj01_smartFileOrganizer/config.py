@@ -11,10 +11,10 @@ DEFAULT_CATEGORIES = {
   "Zips":[".zip"]
 }
 
-def get_configuration() -> dict:
+def get_configuration(config_path) -> dict:
 
     try:
-        config_path = Path(__file__).parent / "config.json"
+
         with config_path.open("r", encoding="utf-8") as file:
             categories = json.load(file)
             logger.info("Categories loaded successfully from 'config.json'.")
@@ -22,20 +22,6 @@ def get_configuration() -> dict:
     except FileNotFoundError:
         logger.warning("'config.json' not found. Using default configuration.")
         return DEFAULT_CATEGORIES
-
-def validate_configuration(config:dict[str, list[str]]) -> bool:
-    """
-        This function validates whether the config file has the right structure
-        Returns true/false
-    """
-    if not isinstance(config, dict) or not config:
-        return False
-
-    for (key, value) in config.items():
-        if not isinstance(value,list):
-            return False
-        else:
-            for ext in value:
-                if not isinstance(ext,str):
-                    return False
-    return True
+    except json.JSONDecodeError:
+        logger.warning("'config.json' contains invalid JSON. Using default configuration.")
+        return DEFAULT_CATEGORIES
