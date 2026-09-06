@@ -1,8 +1,6 @@
 import pytest
-from validations import validate_configuration
-from config import get_configuration, DEFAULT_CATEGORIES
-
-import json
+from organizer.validations import validate_configuration
+from organizer.config import get_configuration, DEFAULT_CATEGORIES
 
 TEST_CATEGORIES = {
   "Images":[".png", ".jpg", ".jpeg", ".bmp", ".gif"],

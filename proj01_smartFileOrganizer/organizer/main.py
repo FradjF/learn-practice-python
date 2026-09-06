@@ -1,8 +1,8 @@
-from cli_parser import parse_argument
-from config import get_configuration
-from validations import validate_path, validate_configuration
-from organizer.core import organize_folder
-from logger import configure_logging
+from .cli_parser import parse_argument
+from .config import get_configuration
+from .validations import validate_path, validate_configuration
+from .core import organize_folder
+from .logger import configure_logging
 from pathlib import Path
 import logging
 
