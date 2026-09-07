@@ -1,6 +1,6 @@
 from pathlib import Path
-from organizer.core import categorize_file, move
 from unittest.mock import patch
+from organizer.core import categorize_file, move
 import pytest
 
 TEST_CATEGORIES = {

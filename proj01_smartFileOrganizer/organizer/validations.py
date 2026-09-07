@@ -1,4 +1,7 @@
 from pathlib import Path
+import logging
+
+logger = logging.getLogger(__name__)
 
 def validate_path(parsed_path: Path) -> Path | None:
     """
@@ -6,7 +9,7 @@ def validate_path(parsed_path: Path) -> Path | None:
     """
     full_path = Path(parsed_path).expanduser()
     if full_path.exists() and full_path.is_dir():
-        print(f"Folder exists.\nFull path is: {full_path}")
+        logger.info(f"Folder exists: {full_path}")
     else:
         full_path = None
     return full_path

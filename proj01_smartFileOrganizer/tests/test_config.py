@@ -2,6 +2,7 @@ import pytest
 from organizer.validations import validate_configuration
 from organizer.config import get_configuration, DEFAULT_CATEGORIES
 
+
 TEST_CATEGORIES = {
   "Images":[".png", ".jpg", ".jpeg", ".bmp", ".gif"],
   "Docs": [".pdf", ".docx", ".xlsx", ".pptx", ".md"],
@@ -67,18 +68,13 @@ def test_config_valid(tmp_path):
 
 
 def test_config_missing_file(tmp_path):
-    config_file = tmp_path / "config.json"
-    result = get_configuration(config_file)
-
-    assert result == DEFAULT_CATEGORIES
+    config_file = tmp_path / "missing.json"
+    with pytest.raises(FileNotFoundError):
+        get_configuration(config_file)
 
 
 def test_config_invalid_json(tmp_path):
-    config_file = tmp_path / "config.json"
-    config_file.write_text(
-    """
-        {"Images": [".jpg", ".png"}
-    """
-    )
-    result = get_configuration(config_file)
-    assert result == DEFAULT_CATEGORIES
+    config_file = tmp_path / "invalid.json"
+    config_file.write_text("{ invalid json }", encoding="utf-8")
+    with pytest.raises(ValueError):
+        get_configuration(config_file)

@@ -12,15 +12,20 @@ DEFAULT_CATEGORIES = {
 
 def get_configuration(config_path) -> dict:
 
-    try:
-
-        with config_path.open("r", encoding="utf-8") as file:
-            categories = json.load(file)
-            logger.info("Categories loaded successfully from 'config.json'.")
-            return categories
-    except FileNotFoundError:
-        logger.warning("'config.json' not found. Using default configuration.")
-        return DEFAULT_CATEGORIES
-    except json.JSONDecodeError:
-        logger.warning("'config.json' contains invalid JSON. Using default configuration.")
-        return DEFAULT_CATEGORIES
+        try:
+            with config_path.open("r", encoding="utf-8") as file:
+                categories = json.load(file)
+                logger.info(
+                    "Categories loaded successfully from '%s'.",
+                    config_path)
+                return categories
+        except FileNotFoundError:
+            logger.error(
+                "Config file not found: %s",
+                config_path)
+            raise FileNotFoundError(f"Config file not found: {config_path}")
+        except json.JSONDecodeError as exc:
+            logger.error(
+                "Config file contains invalid JSON: %s",
+                config_path)
+            raise ValueError(f"Invalid JSON in config file: {config_path}") from exc
