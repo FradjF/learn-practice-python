@@ -23,6 +23,9 @@ config/secrets.yml
 __pycache__/
 *.pyc
 
+#build-generated metadata
+*.egg-info
+
 # OS files
 .DS_Store
 Thumbs.db
