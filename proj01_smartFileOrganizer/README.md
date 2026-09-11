@@ -1,98 +1,113 @@
-# Project 1 — Smart File Organizer
-Difficulty: ⭐☆☆☆☆ (Easy) 
-
-Estimated duration: 5–7 days
-
-This project is intentionally simple so you can focus on writing clean, production-like Python, not solving a difficult algorithm.
+# Project 1 — File Organizer
 
 ## Product Brief
-
 Imagine your Downloads folder has become a mess.
 
 You want a command-line tool that automatically organizes files into folders.
 
 Instead of manually dragging files around, you'll run:
 
-`python organize.py ~/Downloads`
+`file-organizer ~/Downloads`
 
 and get: 
 ``` 
 Downloads/
     Images/
-    Documents/
+    Docs/
     Videos/
-    Music/
-    Archives/
-    Others/
+    Zips/
+    Other/
 ```
 
-## Learning Objectives
 
-By the end of this project you'll have practiced:
+## Features
+- Parse command-line arguments
+- Validate the target folder and configuration
+- Organize files based on their extensions
+- Preview file movements with dry-run mode
+- Support custom JSON configuration
+- Handle filename collisions
+- Log application activity and errors
+- Handle expected application errors gracefully
+- Provide an installable command-line interface
+- Test application behavior with pytest
 
-- Project structure
-- Git workflow
-- Virtual environments
-- Type hints
-- pathlib
-- argparse
-- logging
-- configuration files
-- unit testing
-- error handling
-- clean code
-- documentation
 
-Notice AI isn't involved yet.
+## Installation
 
-We're building the engineering foundation.
+### Requirements
+- Python 3.13 or 3.14
+- pip
 
-## Your User Stories
-### Story 1
+### Install from source
+Clone the repository and navigate to the project directory:
 
-As a user,
+```bash
+git clone <repository-url>
+cd LearnByDoing/proj01_smartFileOrganizer
+```
 
-I can provide a folder path,
+### Install the application
+```bash
+python -m pip install .
+```
+### Verify the installation
+```bash
+file-organizer --help
+```
 
-so that files inside are organized.
 
----
-### Story 2
+## Usage
+### Organize files
+Organize files in the specified folder based on their file extensions.
+```bash
+file-organizer <folder>
+```
 
-As a user,
+### Preview changes with dry-run
+Show the files that would be moved without actually moving them.
+```bash
+file-organizer <folder> --dry-run
+```
 
-I can preview changes without moving files.
+### Use a custom configuration
+Define a mapping: category → extensions
+```bash
+file-organizer <folder> --config <config-file>
+```
 
-(dry-run mode)
+### Configuration file
+Mapping:
+```json
+{
+  "Images":[".png", ".jpg", ".jpeg", ".bmp", ".gif"],
+  "Docs": [".pdf", ".docx", ".xlsx", ".pptx", ".md"],
+  "Videos":[".mp4"],
+  "Zips":[".zip"]
+}
+```
+Files whose extensions do not match any configured category are placed in `Other`.
 
----
-### Story 3
+### Configuration errors
+If a custom configuration file is missing, contains invalid JSON, or has an invalid structure, the application reports an error and exits with a non-zero status code.
 
-As a user,
+### Collision handling
+destination already exists → skip file
 
-I can see what happened.
 
-(logging)
+## Testing
+Run the test suite with:
+```bash
+python -m pytest
+```
 
----
-### Story 4
+## CI
+Tests are automatically executed by GitHub Actions on pushes and pull requests.
 
-As a user,
+The test suite verifies:
 
-Unknown file types are placed in "Others".
+- Configuration validation and configuration loading
+- File categorization and file movement
+- Collision handling
+- Error handling
 
----
-
-## Acceptance Criteria
-
-Minimum viable product:
-
-✅ Organizes files
-
-✅ Creates folders if missing
-
-✅ Doesn't move directories
-
-✅ Doesn't crash on unexpected files
-
-✅ Prints useful messages

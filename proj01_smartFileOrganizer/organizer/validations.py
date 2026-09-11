@@ -3,16 +3,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def validate_path(parsed_path: Path) -> Path | None:
-    """
-        Validates the parsed path: Makes sure the path/folder exists.
-    """
+def validate_path(parsed_path: Path) -> Path:
+    """Validate that the path exists and is a directory."""
+
     full_path = Path(parsed_path).expanduser()
     if full_path.exists() and full_path.is_dir():
-        logger.info(f"Folder exists: {full_path}")
-    else:
-        full_path = None
-    return full_path
+        logger.info("Folder exists: %s", full_path)
+        return full_path
+
+    logger.error("Folder has not been found.")
+    raise FileNotFoundError("Folder has not been found: %s", full_path)
+
 
 def validate_configuration(config:dict[str, list[str]]) -> bool:
     """

@@ -4,12 +4,12 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
-def categorize_file(file_path:Path, categories:dict) -> str:
+def categorize_file(file_path:Path, categories:dict[str, list[str]]) -> str:
     """
         Returns the destination category of file based on its extension.
     """
     file_ext = file_path.suffix
-    for (key, value) in categories.items():
+    for key, value in categories.items():
         if file_ext.lower() in value:
             category = key
             break
@@ -17,12 +17,6 @@ def categorize_file(file_path:Path, categories:dict) -> str:
         category = "Other"
 
     return category
-
-def build_destination_path(destination:Path) -> None:
-    """
-        Creates a destination path for a given category.
-    """
-    destination.mkdir(parents=True, exist_ok=True)
 
 def move(item:Path, category:str, folder:Path) -> str:
     """
@@ -38,7 +32,7 @@ def move(item:Path, category:str, folder:Path) -> str:
         return "Skipped."
 
     try:
-        build_destination_path(destination)
+        destination.mkdir(parents=True, exist_ok=True)
         shutil.move(item,destination)
         logger.info("'%s' Moved successfully to %s.", item.name, destination)
         return "Moved."
@@ -46,7 +40,7 @@ def move(item:Path, category:str, folder:Path) -> str:
         logger.exception("Failed to move %s to %s",item.name, destination)
         return "Failed."
 
-def move_result(item:Path, category:str, result, dry_run:bool) -> str:
+def move_result(item:Path, category:str, result:str, dry_run:bool) -> str:
     """
         Report the action
     """
@@ -68,7 +62,8 @@ def organize_folder(folder:Path, categories:dict, dry_run:bool) -> None:
     for item in folder.iterdir():
         if not item.is_dir():
             category = categorize_file(item, categories)
-            result = ""
-            if not dry_run:
+            if dry_run:
+                result = ""
+            else:
                 result = move(item, category, folder)
             print(f"{move_result(item, category, result, dry_run)}")
