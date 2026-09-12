@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Build outputs
+dist/
+build/
+*.exe
+*.dll
+
+# Environment & secrets
+.env
+.env.local
+config/secrets.yml
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+#Python cache files
+__pycache__/
+*.pyc
+
+#build-generated metadata
+*.egg-info
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+tmp/
+*.tmp
+
+# Virtual environment
+.venv/
+venv/
+env/

@@ -1,0 +1,15 @@
+[project]
+name = "expense-tracker"
+version = "0.1.0"
+description = "A CLI application that for recording and analyzing personal expenses"
+requires-python = ">=3.13,<3.15"
+
+[project.scripts]
+expense-tracker = "expense_tracker.main:main"
+
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["expense_tracker"]
