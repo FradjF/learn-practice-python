@@ -1,12 +1,20 @@
 from expense_tracker.database import get_connection
 from expense_tracker.models import Expense
+from expense_tracker.validations import validate_amount, validate_category, validate_description, validate_date
+
 
 def create_expense(expense: Expense) -> None:
     """
         Add an expense to the expenses database
     """
+    validate_amount(expense.amount)
+    validate_category(expense.category)
+    validate_description(expense.description)
+    validate_date(expense.date)
+
     connection = get_connection()
     cursor = connection.cursor()
+
     cursor.execute("""
         INSERT INTO expenses(amount, category, description, date)
         VALUES (?,?,?,?)
@@ -79,6 +87,11 @@ def update_expense(
     """
         Updates an expense
     """
+    validate_amount(amount)
+    validate_category(category)
+    validate_description(description)
+    validate_date(date)
+
     connection = get_connection()
     cursor = connection.cursor()
     cursor.execute("""
