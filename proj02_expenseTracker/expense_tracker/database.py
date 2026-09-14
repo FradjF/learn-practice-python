@@ -1,5 +1,7 @@
 import sqlite3
 from expense_tracker.configuration import DATABASE_PATH
+from contextlib import contextmanager
+
 
 def get_connection() -> sqlite3.Connection:
     return sqlite3.connect(DATABASE_PATH)
@@ -20,3 +22,20 @@ def initialize_database() -> None:
 
     connection.commit()
     connection.close()
+
+@contextmanager
+def database_connection():
+    """
+        Manage the database connection lifecycle with context manager
+        success: open → yield → SQL → commit → close
+        failure: open → yield → exception → rollback → re-raise → close
+    """
+    connection = get_connection()
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
