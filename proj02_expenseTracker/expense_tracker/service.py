@@ -37,5 +37,4 @@ def replace_expense(old_expense_id, new_expense):
 
     with database_connection() as connection:
         repository.delete_expense(old_expense_id, connection)
-        raise RuntimeError("Simulation failure.")
         repository.create_expense(new_expense, connection)
