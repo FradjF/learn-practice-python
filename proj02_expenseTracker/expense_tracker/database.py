@@ -24,13 +24,16 @@ def initialize_database() -> None:
     connection.close()
 
 @contextmanager
-def database_connection():
+def database_connection(connection=None):
     """
         Manage the database connection lifecycle with context manager
         success: open → yield → SQL → commit → close
         failure: open → yield → exception → rollback → re-raise → close
     """
-    connection = get_connection()
+    owns_connection = connection is None
+    if connection is None:
+        connection = get_connection()
+
     try:
         yield connection
         connection.commit()
@@ -38,4 +41,5 @@ def database_connection():
         connection.rollback()
         raise
     finally:
-        connection.close()
+        if owns_connection:
+            connection.close()

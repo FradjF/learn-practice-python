@@ -1,7 +1,6 @@
 import sqlite3
-
 from expense_tracker.models import Expense
-from expense_tracker.database import database_connection, get_connection
+from expense_tracker.database import database_connection
 
 
 def create_expense(expense: Expense, connection: sqlite3.Connection) -> None:
@@ -88,7 +87,7 @@ def update_expense(expense:Expense) -> None:
             expense.id
         ))
 
-def delete_expense(expense_id: int, connection:sqlite3.Connection) -> None:
+def delete_expense(expense_id: int, connection:sqlite3.Connection) -> bool:
     """
         Delete an expense by ID
     """
@@ -97,3 +96,67 @@ def delete_expense(expense_id: int, connection:sqlite3.Connection) -> None:
         DELETE FROM expenses
         where id = ?
     """, (expense_id,))
+
+    return cursor.rowcount > 0
+
+def get_spending_by_category() -> list[tuple[str,int]]:
+    with database_connection() as connection:
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT category, SUM(amount)
+            FROM expenses
+            GROUP BY category
+            ORDER BY SUM(amount) DESC
+        """)
+
+        return cursor.fetchall()[0]
+
+def get_total_spending(connection: sqlite3.Connection) -> int:
+    cursor = connection.cursor()
+    cursor.execute("""
+        SELECT SUM(amount)
+        FROM expenses
+    """)
+    return cursor.fetchone()[0]
+
+def get_total_spending_between(start_date: str, end_date:str) -> int:
+    with database_connection() as connection:
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT SUM(amount)
+            FROM expenses
+            WHERE date BETWEEN ? AND ?
+        """, (start_date, end_date))
+        return cursor.fetchone()[0]
+
+def get_total_spending_per_month() -> list[tuple[str, int]]:
+    with database_connection() as connection:
+        cursor = connection.cursor()
+        cursor.execute("""
+            SELECT 
+                strftime('%Y-%m', date) AS month,
+                SUM(amount)
+            FROM expenses
+            GROUP BY month
+            ORDER BY month
+        """)
+        return cursor.fetchall()
+
+def get_top_categories_between(
+    start_date: str,
+    end_date: str,
+    limit: int
+) -> list[tuple[str, int]]:
+    with database_connection() as connection:
+        cursor = connection.cursor()
+        cursor.execute("""
+        SELECT category, SUM(amount) as total_amount
+        FROM expenses
+        WHERE date >= ? AND date <= ?
+        GROUP BY category
+        ORDER BY total_amount DESC
+        LIMIT ?
+        
+        """, (start_date, end_date, limit))
+
+        return cursor.fetchall()
