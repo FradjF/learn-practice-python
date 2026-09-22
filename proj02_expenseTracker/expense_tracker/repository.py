@@ -17,6 +17,7 @@ def create_expense(expense: Expense, connection: sqlite3.Connection) -> None:
         expense.description,
         expense.date
     ))
+    expense.id = cursor.lastrowid
 
 def get_expenses() -> list[Expense]:
     """
@@ -65,27 +66,28 @@ def get_expense(expense_id: int) -> Expense | None:
 
     return expense
 
-def update_expense(expense:Expense) -> None:
+def update_expense(expense:Expense, connection:sqlite3.Connection) -> bool:
     """
         Updates an expense
     """
-    with database_connection() as connection:
-        cursor = connection.cursor()
-        cursor.execute("""
-            UPDATE expenses
-            SET 
-                amount = ?,
-                category = ?,
-                description = ?,
-                date = ?
-            WHERE id = ?
-        """, (
-            expense.amount,
-            expense.category,
-            expense.description,
-            expense.date,
-            expense.id
-        ))
+    cursor = connection.cursor()
+    cursor.execute("""
+        UPDATE expenses
+        SET 
+            amount = ?,
+            category = ?,
+            description = ?,
+            date = ?
+        WHERE id = ?
+    """, (
+        expense.amount,
+        expense.category,
+        expense.description,
+        expense.date,
+        expense.id
+    ))
+
+    return cursor.rowcount > 0
 
 def delete_expense(expense_id: int, connection:sqlite3.Connection) -> bool:
     """
@@ -160,3 +162,8 @@ def get_top_categories_between(
         """, (start_date, end_date, limit))
 
         return cursor.fetchall()
+
+def get_sql_db_schema_version():
+    conn = sqlite3.connect("expenses.db")
+    version = conn.execute("PRAGMA user_version").fetchone()[0]
+    print(version)

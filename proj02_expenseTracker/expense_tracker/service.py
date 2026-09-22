@@ -1,10 +1,13 @@
 import sqlite3
-
+import logging
 from expense_tracker.exceptions import ValidationError
 from expense_tracker.models import Expense
 from expense_tracker.validations import validate_amount, validate_category, validate_description, validate_date
 from expense_tracker import repository
 from expense_tracker.database import database_connection
+from expense_tracker.exceptions import PersistenceError
+
+logger = logging.getLogger(__name__)
 
 def create_expense(expense: Expense) -> None:
     validate_amount(expense.amount)
@@ -12,15 +15,22 @@ def create_expense(expense: Expense) -> None:
     validate_description(expense.description)
     validate_date(expense.date)
     with database_connection() as connection:
-        repository.create_expense(expense, connection)
+        try:
+            repository.create_expense(expense, connection)
+            logger.info("Expense created successfully: ID: %s - amount: %s - category: %s - description: %s - date: %s",
+                        expense.id,expense.amount, expense.category, expense.description, expense.date)
+        except Exception as exc:
+            logger.exception("Database error while creating the new expense.")
+            raise PersistenceError("Unable to create expense.") from exc
 
-def update_expense(expense: Expense) -> None:
+def update_expense(expense: Expense, connection: sqlite3.Connection | None = None) -> bool:
     validate_amount(expense.amount)
     validate_category(expense.category)
     validate_description(expense.description)
     validate_date(expense.date)
 
-    repository.update_expense(expense)
+    with database_connection(connection) as dbc:
+        return repository.update_expense(expense, dbc)
 
 def get_expenses() -> list[Expense]:
     return repository.get_expenses()

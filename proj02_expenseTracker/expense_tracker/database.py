@@ -1,27 +1,31 @@
 import sqlite3
-from expense_tracker.configuration import DATABASE_PATH
 from contextlib import contextmanager
-
+from expense_tracker.db_config import DATABASE_PATH
 
 def get_connection() -> sqlite3.Connection:
-    return sqlite3.connect(DATABASE_PATH)
+        return sqlite3.connect(DATABASE_PATH)
 
 def initialize_database() -> None:
-    connection = get_connection()
-    cursor = connection.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS expenses(
-            id INTEGER PRIMARY KEY,
-            amount INTEGER NOT NULL CHECK(amount>0),
-            category TEXT NOT NULL,
-            description TEXT NOT NULL,
-            date TEXT NOT NULL
-        );
-    """)
+    with get_connection() as connection:
+        cursor = connection.cursor()
+        version = cursor.execute("""
+            PRAGMA user_version
+        """).fetchone()[0]
 
-    connection.commit()
-    connection.close()
+        if version < 1:
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS expenses(
+                    id INTEGER PRIMARY KEY,
+                    amount INTEGER NOT NULL CHECK(amount>0),
+                    category TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    date TEXT NOT NULL
+                );
+            """)
+            cursor.execute("""
+                PRAGMA user_version = 1;
+            """)
 
 @contextmanager
 def database_connection(connection=None):

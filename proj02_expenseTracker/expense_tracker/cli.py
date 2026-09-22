@@ -1,4 +1,4 @@
-from expense_tracker.exceptions import ValidationError
+from expense_tracker.exceptions import ValidationError, PersistenceError
 from expense_tracker.models import Expense
 from expense_tracker.service import create_expense, update_expense, get_expenses, get_expense, delete_expense
 
@@ -47,12 +47,14 @@ def modify_expense() -> None:
     expense = Expense(expense_id, amount, category, description, date)
 
     try:
-        update_expense(expense)
+        update = update_expense(expense)
     except ValidationError as exc:
         print(f"Error: {exc}")
         return
-
-    print(f"Expense number {expense_id} updated successfully.")
+    if update:
+        print(f"Expense number {expense_id} updated successfully.")
+    else:
+        print(f"Expense number {expense_id} could not be found.")
 
 def list_expenses() -> None:
     expenses = get_expenses()
@@ -70,7 +72,6 @@ def list_expenses() -> None:
             f"{expense.description:<15} | "
             f"{expense.date:<11} |"
         )
-
 
 def display_expense() -> None:
     while True:
@@ -95,7 +96,6 @@ def display_expense() -> None:
         f"{expense.date:<11}|"
     )
 
-
 def remove_expense() -> None:
     while True:
         try:
@@ -109,3 +109,45 @@ def remove_expense() -> None:
         print(f"Expense ID:{expense_id} successfully deleted.")
     else:
         print(f"Expense ID:{expense_id} does not exist.")
+
+def menu():
+    print("\n******************** Welcome to Expense Tracker ********************\n")
+    print("""
+        Expense Tracker
+
+        1. Add expense
+        2. List expenses
+        3. View expense
+        4. Update expense
+        5. Delete expense
+        6. Reports
+        0. Exit\n
+        """)
+
+    while True:
+        try:
+            option = int(input("Choose an option: "))
+        except ValueError:
+            print("Wrong number. Please try again.")
+            continue
+
+        if option == 1:
+            try:
+                add_expense()
+            except PersistenceError:
+                print("Unable to create expense. Please try again.")
+        elif option == 2:
+            list_expenses()
+        elif option == 3:
+            display_expense()
+        elif option == 4:
+            modify_expense()
+        elif option == 5:
+            remove_expense()
+        elif option == 6:
+            print("reports")
+        elif option == 0:
+            print("Exit confirmed. See you next time.")
+            break
+        else:
+            print("Please choose an option between 0 and 6.")
