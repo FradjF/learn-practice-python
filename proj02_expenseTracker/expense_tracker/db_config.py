@@ -13,9 +13,13 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+def load_config() -> Path:
 
-try:
-    DATABASE_PATH = Path(os.environ["DATABASE_PATH"])
-except KeyError as exc:
-    raise RuntimeError("DATABASE_PATH is not configured.") from exc
+    load_dotenv()
+    try:
+        db_path = Path(os.getenv("DATABASE_PATH"))
+        return db_path
+    except KeyError as exc:
+        raise RuntimeError("DATABASE_PATH is not configured.") from exc
+
+print(load_config())

@@ -1,9 +1,9 @@
 import sqlite3
 from contextlib import contextmanager
-from expense_tracker.db_config import DATABASE_PATH
+from expense_tracker.db_config import load_config
 
 def get_connection() -> sqlite3.Connection:
-        return sqlite3.connect(DATABASE_PATH)
+        return sqlite3.connect(load_config())
 
 def initialize_database() -> None:
 
