@@ -151,3 +151,4 @@ def menu():
             break
         else:
             print("Please choose an option between 0 and 6.")
+        print("\n")

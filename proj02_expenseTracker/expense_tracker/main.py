@@ -14,7 +14,7 @@ def main():
     initialize_database()
     logger.info("DB initialized successfully.")
 
-    #menu()
+    menu()
 
 
 if __name__ == "__main__":
