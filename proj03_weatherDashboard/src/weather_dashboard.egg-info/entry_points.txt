@@ -1,0 +1,2 @@
+[console_scripts]
+weather-dashboard = weather_dashboard.main:main

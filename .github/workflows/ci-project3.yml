@@ -1,0 +1,31 @@
+name: Project 3 CI
+
+on:
+  push:
+    paths:
+      - "proj03_weatherDashboard/**"
+      - ".github/workflows/ci-project3.yml"
+  pull_request:
+    paths:
+      - "proj03_weatherDashboard/**"
+      - ".github/workflows/ci-project3.yml"
+
+jobs:
+  job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./proj03_weatherDashboard
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Run pytest
+        working-directory: ./proj03_weatherDashboard
+        run: python -m pytest
