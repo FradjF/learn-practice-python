@@ -3,9 +3,11 @@ from contextlib import contextmanager
 from expense_tracker.db_config import load_config
 
 def get_connection() -> sqlite3.Connection:
-        return sqlite3.connect(load_config())
+        database = load_config()
+        return sqlite3.connect(database)
 
 def initialize_database() -> None:
+
 
     with get_connection() as connection:
         cursor = connection.cursor()
