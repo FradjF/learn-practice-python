@@ -19,7 +19,6 @@ def get_required_env(var_name):
     except KeyError as exc:
         raise ConfigurationError(f"Environment variable {var_name} not found.") from exc
 
-
 def load_config():
     load_dotenv()
     try:
