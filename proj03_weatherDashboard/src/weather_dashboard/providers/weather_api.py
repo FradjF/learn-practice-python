@@ -1,9 +1,7 @@
-import json
 import requests
 from datetime import datetime
 from weather_dashboard.config import Config
 from weather_dashboard.models import Coordinates, CurrentWeather, ForecastDay, Forecast
-
 
 
 class WeatherApiError(RuntimeError):
@@ -59,9 +57,10 @@ class WeatherApiClient:
 
         self._handle_response(response)
 
-        data = response.json()[0]
-        if data is None:
+        if response.json() is None:
             raise NotFoundError(f"The provided location has not been found: {location}")
+
+        data = response.json()[0]
 
         return Coordinates(
             latitude = data["lat"],
@@ -114,9 +113,9 @@ class WeatherApiClient:
         for item in data:
             date = datetime.fromtimestamp(item["dt"]).strftime("%Y-%m-%d")
             three_hour_forecast = Forecast(
-                    hour = int(datetime.fromtimestamp(item["dt"]).strftime("%H")),
-                    description = item["weather"][0]["description"],
-                    temperature = round(item["main"]["temp"], 0)
+                    hour=int(datetime.fromtimestamp(item["dt"]).strftime("%H")),
+                    description=item["weather"][0]["description"],
+                    temperature=round(item["main"]["temp"], 0)
                 )
 
             if previous_date is None:
@@ -125,8 +124,8 @@ class WeatherApiClient:
             if date != previous_date:
                 days.append(
                     ForecastDay(
-                        timestamp = previous_date,
-                        forecast = day,
+                        date=previous_date,
+                        forecast=day,
                     ),
                 )
                 previous_date = date
@@ -134,11 +133,12 @@ class WeatherApiClient:
 
             day.append(three_hour_forecast)
 
-        days.append(
-            ForecastDay(
-                timestamp=previous_date,
-                forecast=day,
-            ),
-        )
+        if day:
+            days.append(
+                ForecastDay(
+                    date=previous_date,
+                    forecast=day,
+                ),
+            )
 
         return days

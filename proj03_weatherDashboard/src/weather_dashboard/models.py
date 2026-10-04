@@ -19,5 +19,5 @@ class Forecast:
 
 @dataclass
 class ForecastDay:
-    timestamp: str
+    date: str
     forecast: list[Forecast]
