@@ -13,7 +13,7 @@ def main():
     cache = WeatherCache(Path("cache"),config.cache_ttl)
     service = WeatherService(api_client, cache)
 
-    location = "tunis" #input("Provide a location: ")
+    location = input("Provide a location: ")
     coordinates = service.get_geocodes(location)
     print(coordinates)
     weather = service.get_forecast(coordinates)

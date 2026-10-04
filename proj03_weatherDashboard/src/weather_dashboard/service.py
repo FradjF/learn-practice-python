@@ -15,7 +15,19 @@ class WeatherService:
         self.cache =  cache
 
     def get_geocodes(self, location: str) -> Coordinates:
-        return self.api_client.get_geocodes(location)
+
+        key = f"geocode_{location.lower()}"
+
+        cached = self.cache.get(key)
+
+        if cached is not None:
+            print("cache called")
+            return Coordinates(**cached)
+
+        coordinates = self.api_client.get_geocodes(location)
+        self.cache.set(key, asdict(coordinates))
+        print("api called")
+        return coordinates
 
     def get_current(self, coordinates: Coordinates) -> CurrentWeather:
 

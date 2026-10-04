@@ -184,3 +184,60 @@ def test_service_get_forecast_cache_hit():
     fake_api_client.get_forecast.assert_not_called()
     fake_cache.get.assert_called_once_with("forecast_12.344553_29.9089837")
     fake_cache.set.assert_not_called()
+
+def test_service_get_geocodes_cache_miss():
+    fake_cache = Mock()
+    fake_cache.get.return_value = None
+
+    coordinates = Coordinates(
+        latitude=36.8002068,
+        longitude=10.1857757,
+    )
+
+    fake_api_client = Mock()
+    fake_api_client.get_geocodes.return_value = coordinates
+
+    service = WeatherService(
+        api_client=fake_api_client,
+        cache=fake_cache,
+    )
+    location = "tunis"
+    result = service.get_geocodes(location)
+
+    assert result == coordinates
+    fake_api_client.get_geocodes.assert_called_once_with(location)
+    fake_cache.get.assert_called_once_with("geocode_tunis")
+    fake_cache.set.assert_called_once_with(
+        "geocode_tunis",
+        {
+            "latitude": 36.8002068,
+            "longitude": 10.1857757,
+        },
+    )
+
+def test_service_get_geocodes_cache_hit():
+    fake_cache = Mock()
+    fake_cache.get.return_value = {
+            "latitude": 36.8002068,
+            "longitude": 10.1857757,
+        }
+
+    coordinates = Coordinates(
+        latitude=36.8002068,
+        longitude=10.1857757,
+    )
+
+    fake_api_client = Mock()
+    fake_api_client.get_geocodes.return_value = coordinates
+
+    service = WeatherService(
+        api_client=fake_api_client,
+        cache=fake_cache,
+    )
+    location = "tunis"
+    result = service.get_geocodes(location)
+
+    assert result == coordinates
+    fake_api_client.get_geocodes.assert_not_called()
+    fake_cache.get.assert_called_once_with("geocode_tunis")
+    fake_cache.set.assert_not_called()
