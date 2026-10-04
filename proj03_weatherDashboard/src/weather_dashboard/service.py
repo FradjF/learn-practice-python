@@ -1,0 +1,56 @@
+from dataclasses import asdict
+from weather_dashboard.models import Coordinates, CurrentWeather, Forecast, ForecastDay
+from weather_dashboard.cache import WeatherCache
+from weather_dashboard.providers.weather_api import WeatherApiClient
+
+
+class WeatherService:
+
+    def __init__(
+            self,
+            api_client:WeatherApiClient,
+            cache:WeatherCache
+    ):
+        self.api_client = api_client
+        self.cache =  cache
+
+    def get_geocodes(self, location: str) -> Coordinates:
+        return self.api_client.get_geocodes(location)
+
+    def get_current(self, coordinates: Coordinates) -> CurrentWeather:
+
+        key = f"current_{coordinates.latitude}_{coordinates.longitude}"
+
+        cached = self.cache.get(key)
+
+        if cached is not None:
+            return CurrentWeather(**cached)
+
+        weather = self.api_client.get_current_weather(coordinates)
+        self.cache.set(key, asdict(weather))
+        return weather
+
+    def get_forecast(self, coordinates: Coordinates) -> list[ForecastDay]:
+        key = f"forecast_{coordinates.latitude}_{coordinates.longitude}"
+
+        cached_forecast = self.cache.get(key)
+
+        if cached_forecast is not None:
+            return [
+                ForecastDay(
+                    date=day["date"],
+                    forecast=[
+                        Forecast(**forecast)
+                        for forecast in day["forecast"]
+                    ]
+                )
+                for day in cached_forecast
+            ]
+
+        forecast = self.api_client.get_forecast(coordinates)
+        self.cache.set(
+            key,
+            [asdict(day) for day in forecast]
+        )
+
+        return forecast

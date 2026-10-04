@@ -2,26 +2,24 @@ import json
 from pathlib import Path
 from weather_dashboard.config import load_config
 from weather_dashboard.providers.weather_api import WeatherApiClient
+from weather_dashboard.service import WeatherService
 from weather_dashboard.cache import WeatherCache
 
 
 def main():
     config = load_config()
-    client = WeatherApiClient(config)
 
-    location = input("Provide a location: ")
+    api_client = WeatherApiClient(config)
+    cache = WeatherCache(Path("cache"),config.cache_ttl)
+    service = WeatherService(api_client, cache)
 
-    coordinates = client.get_geocodes(location)
+    location = "tunis" #input("Provide a location: ")
+    coordinates = service.get_geocodes(location)
     print(coordinates)
-    weather = client.get_current_weather(coordinates)
+    weather = service.get_forecast(coordinates)
     print(weather)
 
-    cache = WeatherCache(Path("cache"), 300)
-    cache.set("test", 29)
-    forecast = client.get_forecast(coordinates)
-    for day in forecast:
-        print(day)
-        print()
+
 
 if __name__ == "__main__":
     main()

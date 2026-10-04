@@ -24,6 +24,9 @@ __pycache__/
 *.pyc
 *.py[cod]
 
+#Cache data
+cache/
+
 #build-generated metadata
 *.egg-info
 

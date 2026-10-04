@@ -90,7 +90,7 @@ class WeatherApiClient:
             feels_like = round(data["main"]["feels_like"], 0),
         )
 
-    def get_forecast(self, coordinates: Coordinates):
+    def get_forecast(self, coordinates: Coordinates) -> list[ForecastDay]:
         response = requests.get(
             url = f"{self.api_base_url}/data/2.5/forecast",
             params = {
