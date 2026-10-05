@@ -1,23 +1,45 @@
-import json
 from pathlib import Path
 from weather_dashboard.config import load_config
 from weather_dashboard.providers.weather_api import WeatherApiClient
 from weather_dashboard.service import WeatherService
 from weather_dashboard.cache import WeatherCache
+from weather_dashboard.cli_parser import parse_arguments
 
+def run(location:str, service: WeatherService, show_forecast:bool):
+    coordinates = service.get_geocodes(location)
+    current = service.get_current(coordinates)
+    print(f"Weather: {location.capitalize()}\n")
+    print("Current weather")
+    print("---------------")
+    print(f"Temperature: {current.temperature}°C\n"
+          f"Feels like: {current.feels_like}°C\n"
+          f"Conditions: {current.description}\n")
+
+    if show_forecast:
+        forecast = service.get_forecast(coordinates)
+        print("Forecast")
+        print("--------")
+        for day in forecast:
+            print(day.date)
+            for item in day.forecast:
+                print(f"{item.hour:02d}:00 {item.description} {item.temperature}°C")
+            print()
 
 def main():
+    args = parse_arguments()
+
     config = load_config()
-
     api_client = WeatherApiClient(config)
-    cache = WeatherCache(Path("cache"),config.cache_ttl)
-    service = WeatherService(api_client, cache)
+    cache = WeatherCache(Path(".cache"),config.cache_ttl)
+    service = WeatherService(
+        api_client=api_client,
+        cache=cache)
 
-    location = input("Provide a location: ")
-    coordinates = service.get_geocodes(location)
-    print(coordinates)
-    weather = service.get_forecast(coordinates)
-    print(weather)
+    run(
+        location=args.location,
+        service=service,
+        show_forecast=args.forecast
+    )
 
 
 
