@@ -1,0 +1,240 @@
+{
+  "location": "Differdange",
+  "current": {
+    "description": "nuageux",
+    "temperature": 8.0,
+    "feels_like": 7.0
+  },
+  "forecast": [
+    {
+      "date": "2026-10-08",
+      "forecast": [
+        {
+          "hour": 23,
+          "description": "nuageux",
+          "temperature": 8.0
+        }
+      ]
+    },
+    {
+      "date": "2026-10-09",
+      "forecast": [
+        {
+          "hour": 2,
+          "description": "nuageux",
+          "temperature": 8.0
+        },
+        {
+          "hour": 5,
+          "description": "couvert",
+          "temperature": 7.0
+        },
+        {
+          "hour": 8,
+          "description": "couvert",
+          "temperature": 7.0
+        },
+        {
+          "hour": 11,
+          "description": "légère pluie",
+          "temperature": 9.0
+        },
+        {
+          "hour": 14,
+          "description": "légère pluie",
+          "temperature": 9
+        },
+        {
+          "hour": 17,
+          "description": "légère pluie",
+          "temperature": 11.0
+        },
+        {
+          "hour": 20,
+          "description": "couvert",
+          "temperature": 13.0
+        },
+        {
+          "hour": 23,
+          "description": "couvert",
+          "temperature": 12.0
+        }
+      ]
+    },
+    {
+      "date": "2026-10-10",
+      "forecast": [
+        {
+          "hour": 2,
+          "description": "légère pluie",
+          "temperature": 12.0
+        },
+        {
+          "hour": 5,
+          "description": "légère pluie",
+          "temperature": 12.0
+        },
+        {
+          "hour": 8,
+          "description": "légère pluie",
+          "temperature": 10.0
+        },
+        {
+          "hour": 11,
+          "description": "légère pluie",
+          "temperature": 12.0
+        },
+        {
+          "hour": 14,
+          "description": "légère pluie",
+          "temperature": 15.0
+        },
+        {
+          "hour": 17,
+          "description": "légère pluie",
+          "temperature": 13.0
+        },
+        {
+          "hour": 20,
+          "description": "peu nuageux",
+          "temperature": 10.0
+        },
+        {
+          "hour": 23,
+          "description": "légère pluie",
+          "temperature": 9.0
+        }
+      ]
+    },
+    {
+      "date": "2026-10-11",
+      "forecast": [
+        {
+          "hour": 2,
+          "description": "légère pluie",
+          "temperature": 8.0
+        },
+        {
+          "hour": 5,
+          "description": "légère pluie",
+          "temperature": 8.0
+        },
+        {
+          "hour": 8,
+          "description": "légère pluie",
+          "temperature": 7.0
+        },
+        {
+          "hour": 11,
+          "description": "couvert",
+          "temperature": 9.0
+        },
+        {
+          "hour": 14,
+          "description": "légère pluie",
+          "temperature": 12.0
+        },
+        {
+          "hour": 17,
+          "description": "légère pluie",
+          "temperature": 10.0
+        },
+        {
+          "hour": 20,
+          "description": "légère pluie",
+          "temperature": 10.0
+        },
+        {
+          "hour": 23,
+          "description": "couvert",
+          "temperature": 10.0
+        }
+      ]
+    },
+    {
+      "date": "2026-10-12",
+      "forecast": [
+        {
+          "hour": 2,
+          "description": "couvert",
+          "temperature": 9.0
+        },
+        {
+          "hour": 5,
+          "description": "peu nuageux",
+          "temperature": 7.0
+        },
+        {
+          "hour": 8,
+          "description": "ciel dégagé",
+          "temperature": 7.0
+        },
+        {
+          "hour": 11,
+          "description": "couvert",
+          "temperature": 12.0
+        },
+        {
+          "hour": 14,
+          "description": "couvert",
+          "temperature": 13.0
+        },
+        {
+          "hour": 17,
+          "description": "couvert",
+          "temperature": 14.0
+        },
+        {
+          "hour": 20,
+          "description": "couvert",
+          "temperature": 13
+        },
+        {
+          "hour": 23,
+          "description": "couvert",
+          "temperature": 13.0
+        }
+      ]
+    },
+    {
+      "date": "2026-10-13",
+      "forecast": [
+        {
+          "hour": 2,
+          "description": "légère pluie",
+          "temperature": 12.0
+        },
+        {
+          "hour": 5,
+          "description": "couvert",
+          "temperature": 13.0
+        },
+        {
+          "hour": 8,
+          "description": "légère pluie",
+          "temperature": 13.0
+        },
+        {
+          "hour": 11,
+          "description": "légère pluie",
+          "temperature": 14.0
+        },
+        {
+          "hour": 14,
+          "description": "légère pluie",
+          "temperature": 15.0
+        },
+        {
+          "hour": 17,
+          "description": "légère pluie",
+          "temperature": 17.0
+        },
+        {
+          "hour": 20,
+          "description": "couvert",
+          "temperature": 13.0
+        }
+      ]
+    }
+  ]
+}

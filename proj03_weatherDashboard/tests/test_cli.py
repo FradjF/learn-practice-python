@@ -15,7 +15,7 @@ def test_cli_current_weather(capsys):
     )
     fake_service.get_forecast.return_value = None
 
-    run("tunis", fake_service, False)
+    run("tunis", fake_service, False, False)
     captured = capsys.readouterr()
     expected_output = (
         "Weather: Tunis\n"
@@ -61,7 +61,7 @@ def test_cli_forecast_requested(capsys):
         )
     ]
 
-    run("tunis", fake_service, True)
+    run("tunis", fake_service, True, False)
     captured = capsys.readouterr()
     expected_output = (
         "Weather: Tunis\n"

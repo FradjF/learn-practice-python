@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from dataclasses import asdict
 from weather_dashboard.models import Coordinates, CurrentWeather, Forecast, ForecastDay
 from weather_dashboard.cache import WeatherCache
@@ -60,3 +62,25 @@ class WeatherService:
         )
 
         return forecast
+
+
+def build_report(location:str, current:CurrentWeather, forecast:list[ForecastDay]|None) -> dict:
+    export = None
+    if current is not None:
+        export = {
+            "location": location,
+            "current":asdict(current)
+        }
+        if forecast:
+            weather_forecast = {"forecast": [asdict(day) for day in forecast]}
+            export.update(weather_forecast)
+    return export
+
+def export_json(report:dict, json_path:Path) -> None:
+    if report is not None:
+        with open(f"{json_path}/export.json", "w", encoding="utf-8") as file:
+            json.dump(report, file, ensure_ascii=False, indent=2)
+
+
+
+
