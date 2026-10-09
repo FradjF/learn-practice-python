@@ -22,6 +22,9 @@ class RateLimitError(WeatherApiError):
 class ServerError(WeatherApiError):
     pass
 
+class NetworkError(WeatherApiError):
+    pass
+
 class WeatherApiClient:
     def __init__(self, config: Config):
         self.api_key = config.api_key
@@ -45,22 +48,34 @@ class WeatherApiClient:
 
         raise WeatherApiError("OpenWeather error.")
 
+    def _get(self, url:str, params:dict):
+        try:
+            return requests.get(
+                url=url,
+                params=params,
+                timeout=10,
+            )
+        except requests.exceptions.RequestException as exc:
+            raise NetworkError("Internet connection issue.") from exc
+
     def get_geocodes(self, location: str) -> Coordinates:
-        response = requests.get(
+        response = self._get(
             url = f"{self.api_geo_base_url}/geo/1.0/direct",
             params = {
-                "q": location,
-                "appid": self.api_key,
-            },
-            timeout = 10,
-        )
+                    "q": location,
+                    "appid": self.api_key,
+                },
+            )
 
         self._handle_response(response)
 
-        if response.json() is None:
-            raise NotFoundError(f"The provided location has not been found: {location}")
+        data = response.json()
+        if not data:
+            raise NotFoundError(
+                f"The provided location has not been found: {location}"
+            )
 
-        data = response.json()[0]
+        data = data[0]
 
         return Coordinates(
             latitude = data["lat"],
@@ -68,7 +83,7 @@ class WeatherApiClient:
         )
 
     def get_current_weather(self, coordinates: Coordinates) -> CurrentWeather:
-        response = requests.get(
+        response = self._get(
             url = f"{self.api_base_url}/data/2.5/weather",
             params = {
                 "lat": coordinates.latitude,
@@ -77,7 +92,6 @@ class WeatherApiClient:
                 "units": "metric",
                 "lang": "FR",
             },
-            timeout = 10,
         )
 
         self._handle_response(response)
@@ -91,7 +105,8 @@ class WeatherApiClient:
         )
 
     def get_forecast(self, coordinates: Coordinates) -> list[ForecastDay]:
-        response = requests.get(
+
+        response = self._get(
             url = f"{self.api_base_url}/data/2.5/forecast",
             params = {
                 "lat": coordinates.latitude,
@@ -100,7 +115,6 @@ class WeatherApiClient:
                 "units": "metric",
                 "lang": "FR",
             },
-            timeout = 10,
         )
 
         self._handle_response(response)

@@ -1,10 +1,12 @@
 import pytest
+import requests
 from datetime import datetime
 from unittest.mock import Mock
 from weather_dashboard.models import Coordinates
 from weather_dashboard.config import Config
 from weather_dashboard.providers import weather_api
-from weather_dashboard.providers.weather_api import WeatherApiClient, BadRequestError, AuthenticationError
+from weather_dashboard.providers.weather_api import (WeatherApiClient, BadRequestError,
+                                                     AuthenticationError, NetworkError, NotFoundError)
 
 
 def test_geocodes_success(monkeypatch):
@@ -80,6 +82,25 @@ def test_geocodes_bad_request(monkeypatch):
     client = WeatherApiClient(config)
 
     with pytest.raises(BadRequestError, match="missing or incorrect"):
+        client.get_geocodes("Paris")
+
+def test_geocodes_empty_result(monkeypatch):
+
+    mock_get = Mock()
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = []
+
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        mock_get)
+
+    config = Config(
+        api_key="test-key",
+        api_base_url="https://api.test1",
+        api_geo_base_url="https://api.test",
+        cache_ttl=300)
+    client = WeatherApiClient(config)
+
+    with pytest.raises(NotFoundError):
         client.get_geocodes("Paris")
 
 def test_get_current_success(monkeypatch):
@@ -225,3 +246,62 @@ def test_get_forecast_success(monkeypatch):
     assert data[0].forecast[0].temperature == 18
     assert data[0].forecast[1].temperature == 20
     assert data[1].forecast[0].temperature == 16
+
+def test_geocodes_connection_error(monkeypatch):
+
+    mock_get = Mock()
+    mock_get.side_effect = requests.exceptions.ConnectionError()
+
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        mock_get)
+
+    config = Config(
+        api_key="test-key",
+        api_base_url="https://api.test1",
+        api_geo_base_url="https://api.test",
+        cache_ttl=300)
+    client = WeatherApiClient(config)
+
+    with pytest.raises(NetworkError, match="Internet connection"):
+        client.get_geocodes("Paris")
+
+def test_geocodes_timeout_error(monkeypatch):
+
+    mock_get = Mock()
+    mock_get.side_effect = requests.exceptions.Timeout()
+
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        mock_get)
+
+    config = Config(
+        api_key="test-key",
+        api_base_url="https://api.test1",
+        api_geo_base_url="https://api.test",
+        cache_ttl=300)
+    client = WeatherApiClient(config)
+
+    with pytest.raises(NetworkError, match="Internet connection"):
+        client.get_geocodes("Paris")
+
+def test_get_current_connection_error(monkeypatch):
+    #Arrange
+    mock_get = Mock()
+    mock_get.side_effect = requests.exceptions.ConnectionError()
+
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        mock_get)
+
+    #Act
+    config = Config(
+        api_key="test-key",
+        api_base_url="https://api.test1",
+        api_geo_base_url="https://api.test",
+        cache_ttl=300
+
+    )
+    client = WeatherApiClient(config)
+    coordinates = Coordinates(12.78683, 28.90809)
+
+    #Assert
+    with pytest.raises(NetworkError):
+        client.get_current_weather(coordinates)
