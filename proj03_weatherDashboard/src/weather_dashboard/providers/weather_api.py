@@ -156,3 +156,4 @@ class WeatherApiClient:
             )
 
         return days
+
