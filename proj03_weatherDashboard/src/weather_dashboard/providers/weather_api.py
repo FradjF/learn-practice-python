@@ -25,6 +25,9 @@ class ServerError(WeatherApiError):
 class NetworkError(WeatherApiError):
     pass
 
+class MalformedResponseError(WeatherApiError):
+    pass
+
 class WeatherApiClient:
     def __init__(self, config: Config):
         self.api_key = config.api_key
@@ -95,11 +98,28 @@ class WeatherApiClient:
         )
 
         self._handle_response(response)
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise MalformedResponseError(f"Invalid JSON")
 
-        data = response.json()
+        if not isinstance(data, dict):
+            raise MalformedResponseError("API response is not a dictionary.")
+
+        weather = data.get("weather")
+        if not isinstance(weather, list) or not weather:
+            raise MalformedResponseError("Weather data is missing or invalid.")
+
+        weather_item = weather[0]
+        if not isinstance(weather_item, dict):
+            raise MalformedResponseError("Weather data entry is invalid.")
+
+        description = weather_item.get("description")
+        if not isinstance(description, str) or not description:
+                raise MalformedResponseError("Weather description is missing or invalid.")
 
         return CurrentWeather(
-            description = data["weather"][0]["description"],
+            description = description,
             temperature = round(data["main"]["temp"], 0),
             feels_like = round(data["main"]["feels_like"], 0),
         )

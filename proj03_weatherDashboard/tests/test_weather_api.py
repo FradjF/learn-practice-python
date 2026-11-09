@@ -6,8 +6,18 @@ from weather_dashboard.models import Coordinates
 from weather_dashboard.config import Config
 from weather_dashboard.providers import weather_api
 from weather_dashboard.providers.weather_api import (WeatherApiClient, BadRequestError,
-                                                     AuthenticationError, NetworkError, NotFoundError)
+                                                     AuthenticationError, NetworkError, NotFoundError,
+                                                     MalformedResponseError)
 
+@pytest.fixture
+def client():
+    config = Config(
+        api_key="test-key",
+        api_base_url="https://api.test1",
+        api_geo_base_url="https://api.test",
+        cache_ttl=300)
+
+    return WeatherApiClient(config)
 
 def test_geocodes_success(monkeypatch):
     """
@@ -305,3 +315,144 @@ def test_get_current_connection_error(monkeypatch):
     #Assert
     with pytest.raises(NetworkError):
         client.get_current_weather(coordinates)
+
+def test_invalid_api_response(monkeypatch, client):
+
+    #Arrange
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = []
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        fake_get)
+
+    #Act & Assert
+    with pytest.raises(MalformedResponseError,
+                       match="API response is not a dictionary"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_missing_weather(monkeypatch, client):
+
+    #Arrange
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {
+        "main": {
+            "temp": 24,
+            "feels_like": 26,
+        },
+    }
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        fake_get)
+
+    #Act & Assert
+    with pytest.raises(MalformedResponseError,
+                       match="Weather data is missing or invalid"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_invalid_weather_data(monkeypatch, client):
+
+    #Arrange
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {
+            "main": {
+                "temp":24,
+                "feels_like": 26,
+            },
+            "weather": [],
+    }
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        fake_get)
+
+    #Act & Assert
+    with pytest.raises(MalformedResponseError,
+                       match="Weather data is missing or invalid"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_invalid_weather_description(monkeypatch, client):
+
+    #Arrange
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {
+        "main": {
+            "temp": 24,
+            "feels_like": 26,
+        },
+        "weather": [
+            {"description": 12, }
+        ],
+    }
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        fake_get)
+
+    #Act & Assert
+    with pytest.raises(MalformedResponseError,
+                       match="Weather description is missing or invalid"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_missing_description(monkeypatch, client):
+
+    #Arrange
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {
+        "main": {
+            "temp": 24,
+            "feels_like": 26,
+        },
+        "weather": [
+            {}
+        ],
+    }
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr("weather_dashboard.providers.weather_api.requests.get",
+                        fake_get)
+
+    #Act & Assert
+    with pytest.raises(MalformedResponseError,
+                       match="Weather description is missing or invalid"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_invalid_json(monkeypatch, client):
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.side_effect = ValueError("Invalid JSON")
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr(
+        "weather_dashboard.providers.weather_api.requests.get",
+        fake_get
+    )
+
+    with pytest.raises(MalformedResponseError, match="Invalid JSON"):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
+
+def test_invalid_weather_entry(monkeypatch, client):
+    fake_response = Mock()
+    fake_response.status_code = 200
+    fake_response.json.return_value = {
+        "weather": ["clear sky"],
+        "main": {
+            "temp": 24,
+            "feels_like": 26,
+        },
+    }
+
+    fake_get = Mock(return_value=fake_response)
+    monkeypatch.setattr(
+        "weather_dashboard.providers.weather_api.requests.get",
+        fake_get
+    )
+
+    with pytest.raises(MalformedResponseError):
+        client.get_current_weather(Coordinates(12.13445, 29.29034))
